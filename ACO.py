@@ -8,25 +8,25 @@ class AS:
 	_ALPHA= 1
 	_BETA = 1
 	_C = 1 # inital value of Tij which is small positive contant C
-	_NC_max = 40
+	
 	_Q = 1
 	_P = 0.2
 	#r is a coefficient such that (1 - r) represents the evaporation of trail between time t and t+n
 	#https://www.hindawi.com/journals/mpe/2016/6469721/
 
-	def __init__(self,input_file,m):
+	def __init__(self,input_file,m,NC_max):
 		
 		self.t= 0 #time counter
 		self.NC = 0 # cycles counter
-		self.m = 10 # number of ants
-
+		self.m = m # number of ants
+		self._NC_max=NC_max # number of cycles
 		
 		self.tabu = [] # visited cities
 
 		self.cities = [] 
 		self.read_in_file(input_file)
 		self.n = self.cities.shape[0]
-		self.print_arr('cities',self.cities)
+		#self.print_arr('cities',self.cities)
 		
 
 		#For every edge (i,j) set an initial value tij(t)=c for trail intensity and Dtij= 0 
@@ -46,15 +46,14 @@ class AS:
 		self.shortest_tour_distance = numpy.inf
 			
 	def run(self):
-		# the length for each ant route
-		self.L= numpy.empty(shape=(AS._NC_max,self.m))
-		self.L.fill(0)
-		while self.NC < AS._NC_max:
+		
+		while self.NC < self._NC_max:
 			self.s = 0 # s is the tabu list index
 			#Place the starting town of the k-th ant in tabuk(s)
 			#
 			self.tabu = numpy.array([[random.randint(0,self.n-1)]  for i in range(0,self.m)],dtype=int) # ints are positioned on different towns		
-			
+			self.L= numpy.empty(shape=(self.m))
+			self.L.fill(0)
 			
 		
 			for i in range(0,self.n): #3- Repeat until tabu list is full {this step will be repeated (n-1) times}
@@ -77,11 +76,11 @@ class AS:
 					_next_cities[k][0] =int(next_city)  # set the last item to next_city, the last item has -1 as intitial value
 					
 					#4- Compute the length Lk of the tour described by the k-th ant
-					self.L[self.NC][k] += self.cities[self.tabu[k][-1]][next_city]
+					self.L[k] += self.cities[self.tabu[k][-1]][next_city]
 					
 					#4- Update the shortest tour found
-					if _shortest > self.L[self.NC][k]:
-						_shortest = self.L[self.NC][k]
+					if _shortest > self.L[k]:
+						_shortest = self.L[k]
 						_shortest_i = k
 
 				self.tabu = numpy.append(self.tabu,_next_cities,axis=1)
@@ -108,7 +107,7 @@ class AS:
 						if self.tabu[k][_ind_i[0] +1] != _j: # the ant did not go from _i to _j
 							continue
 
-						self.delta_t[_i][_j] += AS._Q/ self.L[self.NC][_k]
+						self.delta_t[_i][_j] += AS._Q/ self.L[_k]
 
 			#5 - For every edge (i,j) compute tij(t+n) according to equation tij(t+n)=p.tij(t)+Delta_t_ij	
 			for _i in range(0,self.n):
@@ -119,7 +118,7 @@ class AS:
 
 		print(self.shortest_tour)
 		print(self.shortest_tour_distance)
-		print(numpy.amin(self.L))
+		#print(numpy.amin(self.L))
 
 	def next_city(self,k):#,j):
 		#Choose the town j to move to, with probability pij k (t) given by equation (4)
@@ -159,7 +158,8 @@ class AS:
 
 
 
-_as = AS("in_files\\6_1.in",3)
+_as = AS("in_files\\29.in",m=15,NC_max=40)
+
 _as.run()
 
 
