@@ -52,8 +52,8 @@ class AS:
 		while self.NC < AS._NC_max:
 			self.s = 0 # s is the tabu list index
 			#Place the starting town of the k-th ant in tabuk(s)
-			#[random.randint(0,self.n-1)] 
-			self.tabu = numpy.array([[0] for i in range(0,self.m)],dtype=int) # ints are positioned on different towns		
+			#
+			self.tabu = numpy.array([[random.randint(0,self.n-1)]  for i in range(0,self.m)],dtype=int) # ints are positioned on different towns		
 			
 			
 		
@@ -83,10 +83,11 @@ class AS:
 					if _shortest > self.L[self.NC][k]:
 						_shortest = self.L[self.NC][k]
 						_shortest_i = k
+
 				self.tabu = numpy.append(self.tabu,_next_cities,axis=1)
 			if self.shortest_tour_distance > _shortest:
 				self.shortest_tour_distance = _shortest
-				self.shortest_tour = numpy.copy(self.tabu[k] )
+				self.shortest_tour = numpy.copy(self.tabu[_shortest_i] )
 
 			self.delta_t = numpy.empty(shape=(self.n,self.n))
 			self.delta_t.fill(0)
@@ -118,7 +119,7 @@ class AS:
 
 		print(self.shortest_tour)
 		print(self.shortest_tour_distance)
-		print(self.L)
+		print(numpy.amin(self.L))
 
 	def next_city(self,k):#,j):
 		#Choose the town j to move to, with probability pij k (t) given by equation (4)
@@ -139,6 +140,7 @@ class AS:
 
 		if len(max_ind) != 1:#TODO select random city if more than one has the same max probability 
 			aa = max_ind[0]
+			print('!!!multiple max probability')
 
 
 		return max_ind[0]
@@ -157,7 +159,7 @@ class AS:
 
 
 
-_as = AS("in_files\\29.in",3)
+_as = AS("in_files\\6_1.in",3)
 _as.run()
 
 
